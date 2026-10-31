@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dictionary - English Hindi</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#fff;color:#202124;
+}
+header{
+ text-align:center;padding:65px 15px 20px;
+}
+h1{font-size:38px;color:#4285f4;margin:0 0 12px}
+.sub{color:#666;font-size:15px}
+.search{
+ display:flex;max-width:580px;margin:25px auto;
+ border:1px solid #ddd;border-radius:30px;
+ padding:7px 12px;align-items:center;
+ box-shadow:0 2px 7px #ddd;
+}
+input{
+ border:0;outline:0;flex:1;
+ padding:12px;font-size:16px;min-width:0;
+}
+button{
+ border:0;border-radius:22px;padding:12px 18px;
+ background:#4285f4;color:white;font-size:15px;
+ cursor:pointer;
+}
+#result{
+ max-width:580px;margin:20px auto;
+ padding:20px;border-radius:12px;
+ background:#f8f9fa;display:none;
+ line-height:1.7;
+}
+#result h2{color:#1a73e8}
+footer{text-align:center;color:#888;margin-top:70px;font-size:13px}
+@media(max-width:600px){
+ header{padding-top:75px}
+ h1{font-size:32px}
+ .search{margin:25px 14px}
+ #result{margin:20px 14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>My Dictionary</h1>
+<div class="sub">English ↔ Hindi Dictionary</div>
+</header>
+
+<div class="search">
+<input id="word" placeholder="Search any English or Hindi word...">
+<button onclick="searchWord()">Search</button>
+</div>
+
+<div id="result"></div>
+
+<footer>My Dictionary | Free English Hindi Translator</footer>
+
+<script>
+async function searchWord(){
+ const word=document.getElementById("word").value.trim();
+ const box=document.getElementById("result");
+ if(!word){alert("Please enter a word");return;}
+
+ box.style.display="block";
+ box.innerHTML="Searching...";
+
+ const isHindi=/[\u0900-\u097F]/.test(word);
+ const pair=isHindi?"hi|en":"en|hi";
+
+ try{
+  const url="https://api.mymemory.translated.net/get?q="
+    +encodeURIComponent(word)+"&langpair="+pair;
+  const response=await fetch(url);
+  const data=await response.json();
+
+  if(data.responseStatus!==200){
+    throw new Error("Translation unavailable");
+  }
+
+  box.innerHTML="";
+  const heading=document.createElement("h2");
+  heading.textContent=word;
+  const meaning=document.createElement("p");
+  meaning.textContent="Meaning: "+data.responseData.translatedText;
+  const direction=document.createElement("small");
+  direction.textContent=isHindi?"Hindi to English":"English to Hindi";
+  box.append(heading,meaning,direction);
+ }catch(e){
+  box.textContent="Meaning nahi mila. Dobara try karein.";
+ }
+}
+
+document.getElementById("word").addEventListener("keydown",e=>{
+ if(e.key==="Enter")searchWord();
+});
+</script>
+
+</body>
+</html>
