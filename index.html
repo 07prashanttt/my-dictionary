@@ -1,142 +1,210 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Dictionary - English Hindi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prashant Dictionary</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;font-family:Arial,sans-serif;
- background:#fff;color:#202124;
-}
-header{
- text-align:center;padding:65px 15px 20px;
-}
-h1{font-size:38px;color:#4285f4;margin:0 0 12px}
-.sub{color:#666;font-size:15px}
-.search{
- display:flex;max-width:580px;margin:25px auto;
- border:1px solid #ddd;border-radius:30px;
- padding:7px 12px;align-items:center;
- box-shadow:0 2px 7px #ddd;
-}
-input{
- border:0;outline:0;flex:1;
- padding:12px;font-size:16px;min-width:0;
-}
-button{
- border:0;border-radius:22px;padding:12px 18px;
- background:#4285f4;color:white;font-size:15px;
- cursor:pointer;
-}
-#result{
- max-width:580px;margin:20px auto;
- padding:20px;border-radius:12px;
- background:#f8f9fa;display:none;
- line-height:1.7;
-}
-#result h2{color:#1a73e8}
-footer{text-align:center;color:#888;margin-top:70px;font-size:13px}
-@media(max-width:600px){
- header{padding-top:75px}
- h1{font-size:32px}
- .search{margin:25px 14px}
- #result{margin:20px 14px}
-}
+body{margin:0;font-family:Arial;background:#f3f6fc;color:#172033}
+header{text-align:center;padding:40px 15px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white}
+header h1{font-size:32px;margin:0 0 10px}
+main{max-width:760px;margin:25px auto;padding:0 14px}
+.panel{background:white;border-radius:18px;padding:20px;box-shadow:0 5px 25px #0001}
+label{display:block;font-weight:bold;margin-bottom:8px}
+.languages{display:grid;grid-template-columns:1fr 42px 1fr;gap:8px;margin-bottom:18px}
+select,textarea{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;background:white}
+textarea{min-height:110px;resize:vertical;margin-bottom:15px}
+button{cursor:pointer}
+.swap{border:0;border-radius:12px;background:#e5edff;color:#2563eb;font-size:23px}
+.primary{width:100%;padding:15px;background:#2563eb;color:white;border:0;border-radius:12px;font-size:17px;font-weight:bold}
+#status{margin:12px 0;color:#64748b}
+.result{display:none;margin-top:18px;background:#eff6ff;padding:18px;border-radius:15px}
+.result h3{color:#2563eb}
+#translated{font-size:23px;font-weight:bold;line-height:1.5;overflow-wrap:anywhere}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.actions button{padding:12px;border:0;border-radius:10px;background:#dbeafe;color:#1d4ed8;font-weight:bold}
+footer{text-align:center;color:#777;padding:25px 10px}
+.contact{margin-top:20px;text-align:center;line-height:1.8}
+a{color:#2563eb;text-decoration:none}
 </style>
 </head>
 <body>
 
 <header>
 <h1>My Dictionary</h1>
-<div class="sub">English ↔ Hindi Dictionary</div>
+<p>English • Hindi • Nepali Dictionary</p>
 </header>
 
-<div class="search">
-<input id="word" placeholder="Search any English or Hindi word...">
-<button onclick="searchWord()">Search</button>
+<main>
+<section class="panel">
+
+<div class="languages">
+<div>
+<label>From</label>
+<select id="from">
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="ne">Nepali</option>
+</select>
 </div>
 
-<div id="result"></div>
+<button class="swap" onclick="swapLang()">⇄</button>
 
-<footer>My Dictionary | Free English Hindi Translator</footer>
+<div>
+<label>To</label>
+<select id="to">
+<option value="ne">Nepali</option>
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+</select>
+</div>
+</div>
+
+<label>Write a word or sentence</label>
+<textarea id="word" placeholder="Enter your word here..."></textarea>
+
+<button class="primary" id="search" onclick="translateWord()">
+अर्थ खोज्नुहोस्
+</button>
+
+<div id="status"></div>
+
+<div class="result" id="result">
+<h3>Translation / अर्थ</h3>
+<div id="translated"></div>
+
+<div class="actions">
+<button onclick="speak()">🔊 Listen</button>
+<button onclick="copyText()">Copy Meaning</button>
+</div>
+
+<div id="details"></div>
+</div>
+</section>
+
+<section class="panel contact">
+<h2>Contact Us</h2>
+<strong>Prashant Kumar Yadav</strong>
+<p>WhatsApp: <a href="https://wa.me/9779714289048">9714289048</a></p>
+<p>Email: <a href="mailto:07prashuu@gmail.com">07prashuu@gmail.com</a></p>
+</section>
+</main>
+
+<footer>© 2026 Prashant Kumar Yadav | My Dictionary</footer>
 
 <script>
-async function searchWord(){
- const word=document.getElementById("word").value.trim();
- const box=document.getElementById("result");
- if(!word){alert("Please enter a word");return;}
+let lastTranslation = "";
 
- box.style.display="block";
- box.innerHTML="Searching...";
+function swapLang(){
+let a=document.getElementById("from");
+let b=document.getElementById("to");
+let temp=a.value;
+a.value=b.value;
+b.value=temp;
+}
 
- const isHindi=/[\u0900-\u097F]/.test(word);
- const pair=isHindi?"hi|en":"en|hi";
+async function translateWord(){
+let word=document.getElementById("word").value.trim();
+let from=document.getElementById("from").value;
+let to=document.getElementById("to").value;
+let status=document.getElementById("status");
+let button=document.getElementById("search");
 
- try{
-  const url="https://api.mymemory.translated.net/get?q="
-    +encodeURIComponent(word)+"&langpair="+pair;
-  const response=await fetch(url);
-  const data=await response.json();
+if(!word){
+status.innerText="Please enter a word.";
+return;
+}
+if(from===to){
+status.innerText="Choose two different languages.";
+return;
+}
 
-  if(data.responseStatus!==200){
-    throw new Error("Translation unavailable");
-  }
+button.disabled=true;
+status.innerText="Searching meaning...";
+document.getElementById("result").style.display="none";
 
-  box.innerHTML="";
-  const heading=document.createElement("h2");
-  heading.textContent=word;
-  const meaning=document.createElement("p");
-  meaning.textContent="Meaning: "+data.responseData.translatedText;
-  const direction=document.createElement("small");
-  direction.textContent=isHindi?"Hindi to English":"English to Hindi";
-  box.append(heading,meaning,direction);
- }catch(e){
-  box.textContent="Meaning nahi mila. Dobara try karein.";
- }
+try{
+let url=new URL("https://api.mymemory.translated.net/get");
+url.searchParams.set("q",word);
+url.searchParams.set("langpair",from+"|"+to);
+
+let response=await fetch(url);
+if(!response.ok) throw new Error("Network error");
+
+let data=await response.json();
+let answer=data.responseData.translatedText;
+
+if(!answer || data.responseStatus!==200)
+throw new Error("Meaning not found.");
+
+lastTranslation=answer;
+document.getElementById("translated").innerText=answer;
+document.getElementById("result").style.display="block";
+status.innerText="Translation completed!";
+
+document.getElementById("details").innerHTML="";
+
+if(from==="en" && /^[a-zA-Z -]+$/.test(word)){
+try{
+let r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(word));
+if(r.ok){
+let d=await r.json();
+let meaning=d[0].meanings[0].definitions[0];
+document.getElementById("details").innerHTML=
+"<hr><h3>English Dictionary</h3>"+
+"<p><b>Definition:</b> "+escapeHTML(meaning.definition||"")+"</p>"+
+"<p><b>Example:</b> "+escapeHTML(meaning.example||"")+"</p>";
+}
+}catch(e){}
+}
+
+}catch(e){
+status.innerText="Meaning unavailable. Check your internet and try again.";
+}
+button.disabled=false;
+}
+
+function escapeHTML(s){
+return String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",
+'"':"&quot;","'":"&#39;"
+})[c]);
+}
+
+function speak(){
+if(!lastTranslation)return;
+if(!window.speechSynthesis){
+document.getElementById("status").innerText="Speech unavailable.";
+return;
+}
+speechSynthesis.cancel();
+let speech=new SpeechSynthesisUtterance(lastTranslation);
+let voices=speechSynthesis.getVoices();
+let voice=voices.find(v=>/^ne([-_]|$)/i.test(v.lang));
+speech.lang=voice?voice.lang:"ne-NP";
+if(voice)speech.voice=voice;
+speechSynthesis.speak(speech);
+}
+
+async function copyText(){
+try{
+await navigator.clipboard.writeText(lastTranslation);
+document.getElementById("status").innerText="Copied!";
+}catch(e){
+document.getElementById("status").innerText="Please copy the meaning manually.";
+}
 }
 
 document.getElementById("word").addEventListener("keydown",e=>{
- if(e.key==="Enter")searchWord();
+if(e.key==="Enter"&&!e.shiftKey){
+e.preventDefault();
+translateWord();
+}
 });
 </script>
 
-<style>
-.contact{
- max-width:580px;
- margin:50px auto 25px;
- padding:25px;
- background:#f8f9fa;
- border-radius:15px;
- line-height:2;
-}
-.contact h2{color:#4285f4}
-.contact a{
- color:#1a73e8;
- text-decoration:none;
-}
-</style>
-
-<section class="contact">
-<h2>Contact Us</h2>
-<h3>Prashant Kumar Yadav</h3>
-
-<p>📱 WhatsApp:
-<a href="https://wa.me/9779714289048">
-9714289048
-</a></p>
-
-<p>📧 Email:
-<a href="mailto:07prashuu@gmail.com">
-07prashuu@gmail.com
-</a></p>
-
-<hr>
-<p>© 2026 My Dictionary</p>
-<p>All Rights Reserved</p>
-</section>
-
 </body>
 </html>
+
